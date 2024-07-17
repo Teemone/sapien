@@ -16,7 +16,4 @@ data class ChatMessage(
     val message: String? = null,
     val sender: Sender? = null,
     val timestamp: Long? = null
-): Parcelable {
-    fun dummy(): ChatMessage = ChatMessage(0, "Hello", Sender.USER)
-
-}
+): Parcelable

@@ -1,5 +1,7 @@
 package com.yourandroidguy.sapien.model
 
+import com.yourandroidguy.sapien.components.Sender
+
 /**
  * A chat is a single room where [Sender.USER] & [Sender.BOT] can exchange messages
  *

@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import com.yourandroidguy.sapien.model.ChatMessage
+import com.yourandroidguy.sapien.model.Chat
 
 /**
  * Retains a list of [ChatMessage]s collected for a particular [Chat]
@@ -22,20 +23,6 @@ data class ChatMessageListState(
     val value
         get() = chatMessageList
 
-    fun addMessage(message: ChatMessage) = chatMessageList.add(message)
-
-    /**
-     * Append new chatList to current chatMessageList
-     */
-    fun appendMessages(messages: List<ChatMessage>) = chatMessageList.addAll(messages)
-
-    /**
-     * Replace existing data in chatMessageList
-     */
-    fun setMessages(messages: List<ChatMessage>) {
-        chatMessageList.clear()
-        chatMessageList.addAll(messages)
-    }
     fun clear() = chatMessageList.clear()
 }
 

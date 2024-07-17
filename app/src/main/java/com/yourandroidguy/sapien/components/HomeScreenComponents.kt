@@ -1,7 +1,6 @@
 package com.yourandroidguy.sapien.components
 
 import android.net.Uri
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Image
@@ -59,7 +58,6 @@ import androidx.compose.ui.focus.FocusState
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -226,7 +224,6 @@ fun PromptTextFieldRow(
     imageUrl: Uri?,
     textState: PromptTextState,
     onImportImageClicked: () -> Unit = {},
-    onMicClicked: () -> Unit = {},
     onSendClicked: (String, () -> Unit) -> Unit,
     onCancelSelectedImageClicked: () -> Unit = {}
 ) {
