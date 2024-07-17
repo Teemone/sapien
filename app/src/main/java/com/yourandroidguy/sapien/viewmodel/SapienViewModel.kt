@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import com.yourandroidguy.sapien.components.Sender
 
 class SapienViewModel: ViewModel() {
 
@@ -33,10 +34,6 @@ class SapienViewModel: ViewModel() {
     private val _chats = MutableStateFlow(listOf<Chat>())
     val chatsList: StateFlow<List<Chat>>
         get() = _chats
-
-    private val _chatMessageMap = MutableStateFlow(mapOf<String, List<ChatMessage>>())
-    val chatMessageMap
-        get() =  _chatMessageMap.asStateFlow()
 
     private var _loadingState = MutableStateFlow(LoadingState.CANCELLED)
     val loadingState = _loadingState.asStateFlow()

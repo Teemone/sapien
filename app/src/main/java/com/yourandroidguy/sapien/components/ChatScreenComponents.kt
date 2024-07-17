@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.yourandroidguy.sapien.components.Sender.BOT
 import com.yourandroidguy.sapien.components.Sender.USER
+import com.yourandroidguy.sapien.model.ChatMessage
 
 @Composable
 fun RequestBubble(
