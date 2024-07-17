@@ -98,18 +98,6 @@ fun HomeScreen(
                 onCancelSelectedImageClicked = {imageUrl = null},
 
                 onImportImageClicked = {launcher.launch("image/*")},
-
-                onMicClicked = {
-                    val str = "This is a random test!"
-                    chatMessageList.add(
-                        ChatMessage(
-                            id = if (chatMessageList.isEmpty()) 0 else chatMessageList.lastIndex + 1,
-                            message = str,
-                            sender = Sender.BOT
-                        )
-                    )
-
-                },
                 onSendClicked = {
                         text, clearText ->
                     val validText = text.isNotBlank() && text.isNotEmpty()
