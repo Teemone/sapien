@@ -2,6 +2,8 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
     id("com.google.gms.google-services")
+    id("kotlin-parcelize")
+
 }
 
 android {
@@ -61,7 +63,21 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.database)
+    implementation(libs.firebase.auth)
+    implementation (libs.googleid)
+    implementation (libs.androidx.credentials)
+    implementation (libs.androidx.credentials.play.services.auth)
+    implementation(libs.androidx.runtime.android)
+    implementation(libs.androidx.lifecycle.viewmodel.compose.android)
+    implementation(libs.androidx.activity.ktx)
+    implementation(libs.play.services.auth)
+    implementation(libs.androidx.core.splashscreen)
     implementation(libs.firebase.vertexai)
+    implementation(libs.coil.compose)
+    implementation(libs.androidx.lifecycle.runtime.compose.android)
+    implementation(libs.androidx.material.icons.extended.android)
+    implementation(libs.androidx.navigation.compose)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
