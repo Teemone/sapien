@@ -10,6 +10,8 @@ import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.getValue
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.vertexai.vertexAI
+import com.yourandroidguy.sapien.components.Sender
 import com.yourandroidguy.sapien.model.Chat
 import com.yourandroidguy.sapien.model.ChatMessage
 import kotlinx.coroutines.delay
@@ -18,11 +20,13 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import com.yourandroidguy.sapien.components.Sender
 
 class SapienViewModel: ViewModel() {
 
     private val database = Firebase.database.reference
+
+    private val generativeModel = com.google.firebase.Firebase.vertexAI.generativeModel("gemini-1.5-flash")
+
 
     private val _user = MutableStateFlow<FirebaseUser?>(null)
     val user = _user.asStateFlow()
@@ -38,7 +42,10 @@ class SapienViewModel: ViewModel() {
     private var _loadingState = MutableStateFlow(LoadingState.CANCELLED)
     val loadingState = _loadingState.asStateFlow()
 
+    private var _enableButton = MutableStateFlow(true)
+    val enableButton = _enableButton.asStateFlow()
 
+    private var count = 0
     /**
      * Backing property to store a reference to the current [Chat]
      */
@@ -57,6 +64,43 @@ class SapienViewModel: ViewModel() {
         LOADING, COMPLETED, CANCELLED
     }
 
+
+    fun sendRequestToAi(message: ChatMessage){
+        viewModelScope.launch {
+            try {
+                _enableButton.update { false }
+
+                val resp = generativeModel.generateContent(message.message?: "")
+
+                delay(3000)
+
+                if (resp.text != null){
+                    _chatMessageList.update { msgList ->
+                        val tmp = msgList.toMutableList()
+                        val cm = ChatMessage(
+                            id = message.id?.plus(1),
+                            message = resp.text,
+                            sender = Sender.BOT
+                        )
+                        tmp.add(cm)
+                        insertMessage(cm, currentChat.value?.id!!)
+                        Log.i("Bot Response Id", cm.id.toString())
+                        tmp.toList()
+                    }
+                    _enableButton.update { true }
+                }else{
+                    _enableButton.update { true }
+                }
+            }catch (e: Exception){
+                _enableButton.update { true }
+                e.printStackTrace()}
+
+
+//            Log.i("Chat Message List", _chatMessageList.value.toString())
+//            Log.i("VM apiResp Loading state", enableButton.value.toString())
+        }
+    }
+
     /**
      * Get a list of all previously created [Chat]s
      *
@@ -66,7 +110,6 @@ class SapienViewModel: ViewModel() {
     private fun fetchChatList() {
         val eventListener = object: ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-
                 try {
                     for (snap in snapshot.children){
                         snap.getValue<Chat>()?.let { addChatToChatsList(it) }
@@ -111,15 +154,18 @@ class SapienViewModel: ViewModel() {
                     .child(uid)
                     .child("messages")
                     .child(chatId.toString())
+                    .orderByChild("id")
                     .addValueEventListener(
                         object : ValueEventListener {
                             override fun onDataChange(snapshot: DataSnapshot) {
                                 val tmpList = mutableListOf<ChatMessage>()
                                 try {
+                                    count++
                                     for (snap in snapshot.children){
                                         snap.getValue<ChatMessage>()?.let { tmpList.add(it) }
                                         Log.i(snap.key, (snap.getValue<ChatMessage>()).toString())
                                     }
+                                    Log.i("COUNT", count.toString())
                                 }catch (e: Exception){e.printStackTrace()}
                                 finally {
                                     if (tmpList.isNotEmpty())
@@ -183,13 +229,14 @@ class SapienViewModel: ViewModel() {
                     .child("m${message.id.toString()}")
                     .setValue(message)
             }
-
+            Log.i("Insert Msg to Db", "Mssg: $message === Id: $chatId")
         }
     }
 
     fun updateCurrentChat(chat: Chat?){_currentChat.update { chat }}
 
     fun updateLoadingState(loadingState: LoadingState){_loadingState.update { loadingState }}
+//    fun updateApiResponseLoadingState(loadingState: LoadingState){_apiResponseLoadingState.update { loadingState }}
 
     fun updateUser(user: FirebaseUser?) {
         _user.update { user }
