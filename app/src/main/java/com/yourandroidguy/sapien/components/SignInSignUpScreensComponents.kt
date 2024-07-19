@@ -42,7 +42,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.input.KeyboardType
@@ -65,7 +67,8 @@ fun PasswordComplexityCheckUI(
     Text(
         modifier = Modifier.fillMaxWidth(),
         style = TextStyle.Default.copy(fontStyle = FontStyle.Italic),
-        text = "Your password must contain at least one of the following:")
+        text = stringResource(R.string.your_password_must_contain)
+    )
     Spacer(modifier = Modifier.height(4.dp))
     Row(
         modifier = modifier.fillMaxWidth(),
@@ -74,15 +77,15 @@ fun PasswordComplexityCheckUI(
             modifier = Modifier.weight(1f),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            PasswordComplexityItem(completed = hasUppercase, text = "uppercase")
-            PasswordComplexityItem(completed = hasLowercase, text = "lowercase")
+            PasswordComplexityItem(completed = hasUppercase, text = stringResource(R.string.uppercase))
+            PasswordComplexityItem(completed = hasLowercase, text = stringResource(R.string.lowercase))
         }
         Column(
             modifier = Modifier.weight(1f),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            PasswordComplexityItem(completed = hasDigit, text = "number")
-            PasswordComplexityItem(completed = atLeast8Chars, text = "8 or more characters")
+            PasswordComplexityItem(completed = hasDigit, text = stringResource(R.string.number))
+            PasswordComplexityItem(completed = atLeast8Chars, text = stringResource(R.string.eight_or_more))
         }
     }
 }
@@ -96,7 +99,8 @@ fun PasswordComplexityItem(
     Row(modifier) {
         Icon(
             modifier = Modifier.size(16.dp),
-            imageVector = if (completed) Icons.Filled.CheckCircle else Icons.Filled.Cancel, contentDescription = null)
+            imageVector = if (completed) Icons.Filled.CheckCircle else Icons.Filled.Cancel, contentDescription = null,
+            tint = if (completed) MaterialTheme.colorScheme.error else Color.Green)
         Spacer(modifier = Modifier.width(4.dp))
         Text(text = text, style = TextStyle.Default.copy(fontStyle = FontStyle.Italic))
     }
@@ -141,7 +145,7 @@ fun EmailTextField(
                     )
                 },
                 placeholder = {
-                    Text(text = "Your Email", color = Color.White)
+                    Text(text = stringResource(id = R.string.your_email), color = Color.White)
                 },
                 colors = TextFieldDefaults.colors(
                     unfocusedContainerColor = Color.Transparent,
@@ -164,7 +168,7 @@ fun PasswordTextField(
     modifier: Modifier = Modifier,
     state: AuthState,
     isVisible: Boolean,
-    placeholderText: String = "Password",
+    placeholderText: String = stringResource(id = R.string.password),
     onVisibilityClicked: () -> Unit,
     onValueChanged: (String) -> Unit
 ) {
@@ -232,7 +236,7 @@ fun ConfirmPasswordTextField(
     state: AuthState,
     isError: Boolean,
     isVisible: Boolean,
-    placeholderText: String = "Password",
+    placeholderText: String = stringResource(id = R.string.password),
     onVisibilityClicked: () -> Unit,
     onValueChanged: (String) -> Unit
 ) {
@@ -321,7 +325,7 @@ fun ContinueWithGoogleButton(
 ) {
     ContinueWith_Button(
         modifier = modifier,
-        text = "Continue with Google",
+        text = stringResource(R.string.continue_with_google),
         hasIcon = true,
         icon = {
             Image(
@@ -344,7 +348,7 @@ fun ContinueWithEmailButton(
     ContinueWith_Button(
         modifier = modifier,
         enabled = enabled,
-        text = "Continue",
+        text = stringResource(id = R.string._continue),
         onClick = onClick,
         isLoading = isLoading
     )
@@ -355,7 +359,7 @@ private fun ContinueWith_Button(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     isLoading: Boolean = false,
-    text: String = "Continue with *",
+    text: String,
     icon: @Composable ()->Unit = {},
     onClick: () -> Unit = {},
     hasIcon: Boolean = false

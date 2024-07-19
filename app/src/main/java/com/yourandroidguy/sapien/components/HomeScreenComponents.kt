@@ -144,8 +144,6 @@ fun WelcomeContent(
             painter = painterResource(id = R.drawable.larai_plain),
             contentDescription = null)
         Spacer(modifier = Modifier.height(10.dp))
-        Text(text = "You may ask")
-        Spacer(modifier = Modifier.height(10.dp))
         LazyRow(
             contentPadding = PaddingValues(horizontal = 10.dp),
             horizontalArrangement = Arrangement.spacedBy(10.dp)
@@ -162,7 +160,7 @@ fun WelcomeContent(
             style = TextStyle(
                 textAlign = TextAlign.Center
             ),
-            text = "Larai may display inaccurate info, including about people, so double-check its responses. Your privacy and Larai Apps")
+            text = stringResource(id = R.string.user_safety_text))
         Spacer(modifier = Modifier.height(100.dp))
     }
 }
@@ -341,7 +339,7 @@ fun PromptTextField(
                 interactionSource = interactionSource,
                 contentPadding = PaddingValues(12.dp),
                 placeholder = {
-                    Text(text = "I'm looking for...", color = Color.Black)
+                    Text(text = stringResource(id = R.string.im_looking_for), color = Color.Black)
                 },
                 colors = TextFieldDefaults.colors(
                     unfocusedContainerColor = Color.White,
@@ -390,19 +388,6 @@ fun QuestionCard(
             Spacer(modifier = Modifier.height(8.dp))
             Text(text = textBody, color = WhiteAlpha70)
             Spacer(modifier = Modifier.height(8.dp))
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "Ask this",
-                    color = WhiteAlpha70,
-                    style = TextStyle(
-                        textDecoration = TextDecoration.Underline,
-                        fontFamily = FontFamily.Monospace
-                    )
-                )
-                Spacer(modifier = Modifier.width(4.dp))
-            }
         }
     }
 }

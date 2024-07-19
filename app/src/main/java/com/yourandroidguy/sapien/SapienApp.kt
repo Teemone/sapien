@@ -130,7 +130,7 @@ fun App(
                                         }else{
                                             Toast.makeText(
                                                 context,
-                                                "Account not yet verified!",
+                                                context.getString(R.string.account_not_verified),
                                                 Toast.LENGTH_SHORT,
                                             ).show()
                                             auth.signOut()
@@ -147,15 +147,15 @@ fun App(
                                     enableBtn = true
                                     when(e){
                                         is FirebaseNetworkException -> {
-                                            toast("Please check your internet connection and try again")
+                                            toast(context.getString(R.string.check_your_internet_connection))
                                         }
                                         is FirebaseTooManyRequestsException -> {
                                             toast(
-                                                "Too many tries. Please wait before trying again."
+                                                context.getString(R.string.too_many_tries)
                                             )
                                         }
                                         is FirebaseAuthInvalidCredentialsException -> {
-                                            toast("Incorrect username or password")
+                                            toast(context.getString(R.string.incorrect_email_pwd))
                                         }
                                         is FirebaseAuthUserCollisionException -> {
                                             toast(e.message.toString())
@@ -166,7 +166,7 @@ fun App(
 
                                 }
                         }else{
-                            toast("Invalid email address")
+                            toast(context.getString(R.string.invalid_email))
                         }
 
                     },
@@ -278,7 +278,7 @@ fun App(
                                                 }
 
                                             }else{
-                                                toast("Encountered a problem sending verification email. Please try again later")
+                                                toast(context.getString(R.string.encountered_problem))
                                                 auth.signOut()
                                             }
                                         }
@@ -291,11 +291,11 @@ fun App(
                                     e.printStackTrace()
                                 }
                             }else{
-                                toast("Passwords do not match")
+                                toast(context.getString(R.string.pwds_do_not_match))
                             }
 
                         }else
-                            toast("Invalid email address")
+                            toast(context.getString(R.string.invalid_email))
 
                     },
                     continueWithGoogle = {

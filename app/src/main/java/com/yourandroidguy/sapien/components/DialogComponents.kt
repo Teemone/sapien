@@ -33,6 +33,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -67,7 +68,7 @@ fun AlertDialogExample(
                         onConfirmation()
                     }
                 ) {
-                    Text("Confirm")
+                    Text(stringResource(id = R.string.confirm))
                 }
             },
             dismissButton = {
@@ -76,7 +77,7 @@ fun AlertDialogExample(
                         onDismissRequest()
                     }
                 ) {
-                    Text("Dismiss")
+                    Text(stringResource(id = R.string.dismiss))
                 }
             }
         )
@@ -149,14 +150,14 @@ fun DialogWithImage(
 
                 ) {
                     Text(
-                        text = "Privacy Policy",
+                        text = stringResource(id = R.string.privacy_policy),
                         style = MaterialTheme.typography.bodyMedium
                     )
                     Box(modifier = Modifier
                         .size(4.dp)
                         .background(MaterialTheme.colorScheme.onSurface, CircleShape))
                     Text(
-                        text = "Terms of Service",
+                        text = stringResource(id = R.string.terms_of_service),
                         style = MaterialTheme.typography.bodyMedium
                     )
                 }
@@ -173,7 +174,7 @@ fun SignOutOption(
     OptionListItem(
         modifier = modifier,
         icon = Icons.AutoMirrored.Outlined.Logout,
-        text = "Sign out",
+        text = stringResource(R.string.sign_out),
         onClick = onClick
     )
 }

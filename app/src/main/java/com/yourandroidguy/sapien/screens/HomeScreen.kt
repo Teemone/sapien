@@ -44,6 +44,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.yourandroidguy.sapien.R
@@ -229,12 +230,7 @@ fun HomeScreen(
                         .background(Color.Transparent),
                         contentAlignment = Alignment.BottomCenter){
 
-                        RequestBubble(text = "Generating response...")
-//                        Box(modifier = Modifier){
-//                            Text(
-//                                modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp),
-//                                text = "Generating response...")
-//                        }
+                        RequestBubble(text = stringResource(id = R.string.generating_response))
 
                     }
                 }

@@ -50,6 +50,7 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -57,6 +58,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.google.firebase.auth.FirebaseUser
+import com.yourandroidguy.sapien.R
 import com.yourandroidguy.sapien.model.Chat
 import com.yourandroidguy.sapien.screens.HomeScreen
 import com.yourandroidguy.sapien.state.rememberChatMessageListState
@@ -185,8 +187,8 @@ fun AppDrawer(
 
         AlertDialogExample(
             showDialog = showClearAllItemsConfirmationDialog,
-            dialogTitle = "Clear all chats?",
-            dialogText = "This action will delete all chat entries.",
+            dialogTitle = stringResource(R.string.clear_all_chats),
+            dialogText = stringResource(R.string.delete_chat_entries),
             onDismissRequest = { showClearAllItemsConfirmationDialog = false},
             onConfirmation = {
                 showClearAllItemsConfirmationDialog = false
@@ -245,7 +247,7 @@ fun DrawerContent(
             onClick = onNewChatClicked) {
             Icon(imageVector = Icons.Default.Add,
                 contentDescription = null)
-            Text(text = "New Chat")
+            Text(text = stringResource(R.string.new_chat))
         }
         Spacer(modifier = Modifier.height(24.dp))
         Row(
@@ -257,7 +259,7 @@ fun DrawerContent(
         ) {
             Text(
                 modifier = Modifier.weight(1f),
-                text = "Recent chats".uppercase(),
+                text = stringResource(R.string.clear_all_chats).uppercase(),
                 color = MaterialTheme.colorScheme.onSurface,
                 style = LocalTextStyle.current.copy(),
                 overflow = TextOverflow.Ellipsis,
@@ -265,7 +267,7 @@ fun DrawerContent(
             Spacer(modifier = Modifier.width(4.dp))
             TextButton(onClick = clearAll) {
                 Text(
-                    text = "Clear all",
+                    text = stringResource(R.string.clear_all),
                     color = Color.White
                 )
             }

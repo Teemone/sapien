@@ -20,11 +20,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import com.yourandroidguy.sapien.R
 import com.yourandroidguy.sapien.components.ContinueWithEmailButton
 import com.yourandroidguy.sapien.components.ContinueWithGoogleButton
 import com.yourandroidguy.sapien.components.EmailTextField
@@ -58,7 +60,7 @@ fun SignInScreen(
         Text(
             color = Color.White,
             style = MaterialTheme.typography.displaySmall,
-            text = "Sign in")
+            text = stringResource(id = R.string.sign_in))
         Spacer(modifier = Modifier.height(50.dp))
 
         EmailTextField(
@@ -81,9 +83,9 @@ fun SignInScreen(
                 .clickable { navigateToSignUp() },
             color = MaterialTheme.colorScheme.onBackground,
             text = buildAnnotatedString {
-                append("Don't have an account? ")
+                append(stringResource(id = R.string.dont_have_an_acct))
                 withStyle(style = SpanStyle(textDecoration = TextDecoration.Underline)){
-                    append("Sign up")
+                    append(stringResource(id = R.string.sign_up ))
                 }
 
             })

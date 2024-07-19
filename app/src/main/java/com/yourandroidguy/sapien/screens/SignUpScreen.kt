@@ -19,7 +19,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.yourandroidguy.sapien.R
 import com.yourandroidguy.sapien.components.ConfirmPasswordTextField
 import com.yourandroidguy.sapien.components.ContinueWithEmailButton
 import com.yourandroidguy.sapien.components.ContinueWithGoogleButton
@@ -64,7 +66,7 @@ fun SignupScreen(
         Text(
             color = Color.White,
             style = MaterialTheme.typography.displaySmall,
-            text = "Sign up"
+            text = stringResource(id = R.string.sign_up)
         )
         Spacer(modifier = Modifier.height(50.dp))
 
@@ -94,7 +96,7 @@ fun SignupScreen(
         )
         Spacer(modifier = Modifier.height(10.dp))
         ConfirmPasswordTextField(
-            placeholderText = "Confirm Password",
+            placeholderText = stringResource(id = R.string.confirm_password),
             isError = false,
             state = signUpState,
             isVisible = isConfPwVisible,
