@@ -33,7 +33,7 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Send
-import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.AddPhotoAlternate
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.ripple.rememberRipple
@@ -97,7 +97,6 @@ fun ChatContent(
         verticalArrangement = Arrangement.spacedBy(4.dp),
         state = state
     ) {
-
         items(chatMessages){ message ->
             when (message.sender) {
                 Sender.USER -> {
@@ -223,6 +222,7 @@ fun PromptTextFieldRow(
     modifier: Modifier = Modifier,
     imageUrl: Uri?,
     textState: PromptTextState,
+    enableSndBtn: Boolean,
     onImportImageClicked: () -> Unit = {},
     onSendClicked: (String, () -> Unit) -> Unit,
     onCancelSelectedImageClicked: () -> Unit = {}
@@ -283,7 +283,7 @@ fun PromptTextFieldRow(
 
             IconButton(onClick = onImportImageClicked) {
                 Icon(
-                    imageVector = Icons.Default.Add,
+                    imageVector = Icons.Default.AddPhotoAlternate,
                     contentDescription = null,
                     tint= MaterialTheme.colorScheme.onBackground)
             }
@@ -293,7 +293,9 @@ fun PromptTextFieldRow(
                 textState = textState){
                 isFocused = it.isFocused
             }
-            IconButton(onClick = { onSendClicked(textState.text){textState.clearText()} }) {
+            IconButton(
+                enabled = enableSndBtn,
+                onClick = { onSendClicked(textState.text){textState.clearText()} }) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Outlined.Send,
                     contentDescription = null,
