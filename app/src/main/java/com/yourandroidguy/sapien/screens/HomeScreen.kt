@@ -1,6 +1,7 @@
 package com.yourandroidguy.sapien.screens
 
 import android.net.Uri
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedContent
@@ -10,6 +11,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
@@ -25,6 +27,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SmallFloatingActionButton
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -41,10 +44,13 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import com.yourandroidguy.sapien.R
 import com.yourandroidguy.sapien.components.AppTopBar
 import com.yourandroidguy.sapien.components.ChatContent
 import com.yourandroidguy.sapien.components.PromptTextFieldRow
+import com.yourandroidguy.sapien.components.RequestBubble
 import com.yourandroidguy.sapien.components.Sender
 import com.yourandroidguy.sapien.components.WelcomeContent
 import com.yourandroidguy.sapien.model.Chat
@@ -62,7 +68,7 @@ fun HomeScreen(
     viewmodel: SapienViewModel,
     onDrawerClicked: () -> Unit= {},
     onProfileClicked: () -> Unit={},
-    sendRequestToAiService: (String) -> Unit = {}
+    sendRequestToAiService: (ChatMessage) -> Unit
 ) {
     val layoutDirection = LocalLayoutDirection.current
     val lazyListState = rememberLazyListState()
@@ -71,6 +77,7 @@ fun HomeScreen(
         mutableStateOf<Uri?>(null)
     }
     val loadingState by viewmodel.loadingState.collectAsState()
+    val enableSndBtn by viewmodel.enableButton.collectAsState()
     val user by viewmodel.user.collectAsState()
     val launcher =
         rememberLauncherForActivityResult(contract = ActivityResultContracts.GetContent()) { uri ->
@@ -94,6 +101,7 @@ fun HomeScreen(
             PromptTextFieldRow(
                 textState = textState,
                 imageUrl = imageUrl,
+                enableSndBtn = enableSndBtn,
 
                 onCancelSelectedImageClicked = {imageUrl = null},
 
@@ -119,20 +127,23 @@ fun HomeScreen(
 
                             // populate chatMessageList (holds all messages for a particular chat)
                             // when a new message is sent
-                            chatMessageList.add(
-                                ChatMessage(
-                                    id = chatMessageList.lastIndex + 1,
-                                    message = text,
-                                    sender = Sender.USER
-                                )
+                            val cm = ChatMessage(
+                                id = chatMessageList.last().id?.plus(1),
+                                message = text,
+                                sender = Sender.USER
                             )
+                            chatMessageList.add(cm)
+                            Log.i("User Prompt Id", cm.id.toString())
 
+                            val currentChatId = viewmodel.currentChat.value?.id!!
                             viewmodel.insertMessage(
-                                chatMessageList.last(),
-                                viewmodel.currentChat.value?.id!!)
+                                cm,
+                                currentChatId)
 
                             // forward a request to the chat-bot service
-                            sendRequestToAiService(text)
+                            sendRequestToAiService(cm)
+
+                            Log.i("Button enabled state", enableSndBtn.toString())
                         }
                     }
 
@@ -205,6 +216,26 @@ fun HomeScreen(
                             chatMessages = chatMessageList,
                             state = lazyListState
                         )
+                    }
+                }
+            }
+
+            AnimatedContent(targetState = enableSndBtn, label = "show generating response") {
+                if(!it){
+                    Box(modifier = Modifier
+                        .fillMaxSize()
+                        .zIndex(1f)
+                        .padding(bottom = 8.dp)
+                        .background(Color.Transparent),
+                        contentAlignment = Alignment.BottomCenter){
+
+                        RequestBubble(text = "Generating response...")
+//                        Box(modifier = Modifier){
+//                            Text(
+//                                modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp),
+//                                text = "Generating response...")
+//                        }
+
                     }
                 }
             }
