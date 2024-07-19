@@ -212,7 +212,7 @@ fun AppDrawer(
             },
             onProfileClicked = {userInfoDialog = true},
             sendRequestToAiService = {message ->
-
+                viewModel.sendRequestToAi(message)
             }
         )
     }
