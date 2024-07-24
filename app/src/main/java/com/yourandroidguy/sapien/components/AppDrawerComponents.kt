@@ -234,11 +234,14 @@ fun DrawerContent(
     Column(
         modifier = modifier
             .fillMaxSize()
+            .padding(horizontal = 16.dp)
     ) {
+        Text(
+            style = MaterialTheme.typography.displaySmall,
+            text = stringResource(id = R.string.app_name))
         Spacer(modifier = Modifier.height(50.dp))
         Button(
             modifier = Modifier
-                .padding(horizontal = 16.dp)
                 .fillMaxWidth(),
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color.White,
@@ -252,14 +255,13 @@ fun DrawerContent(
         Spacer(modifier = Modifier.height(24.dp))
         Row(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp),
+                .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
                 modifier = Modifier.weight(1f),
-                text = stringResource(R.string.clear_all_chats).uppercase(),
+                text = stringResource(R.string.recent_chats).uppercase(),
                 color = MaterialTheme.colorScheme.onSurface,
                 style = LocalTextStyle.current.copy(),
                 overflow = TextOverflow.Ellipsis,
@@ -318,8 +320,7 @@ fun DrawerContent(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable { onProfileClicked() }
-                        .padding(horizontal = 16.dp),
+                        .clickable { onProfileClicked() },
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     AsyncImage(
@@ -352,13 +353,14 @@ fun RecentSearchItem(
     Surface(
         modifier = modifier
             .fillMaxWidth()
+            .clip(CircleShape)
             .clickable { onClick(chat) },
         color = Color.Transparent
     ) {
         chat.title?.let {
             Text(
                 modifier = Modifier
-                    .padding(16.dp),
+                    .padding(vertical = 16.dp, horizontal = 4.dp),
                 text = it,
                 overflow = TextOverflow.Ellipsis,
                 maxLines = 1,
