@@ -1,6 +1,7 @@
 package com.yourandroidguy.sapien.components
 
 import android.net.Uri
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Image
@@ -21,6 +22,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
@@ -37,10 +39,12 @@ import androidx.compose.material.icons.filled.AddPhotoAlternate
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.ripple.rememberRipple
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ProgressIndicatorDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
@@ -58,15 +62,13 @@ import androidx.compose.ui.focus.FocusState
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
@@ -135,33 +137,42 @@ fun WelcomeContent(
     Column(
         modifier = modifier
             .fillMaxSize()
+            .statusBarsPadding()
             .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
     ) {
-        Spacer(modifier = Modifier.height(180.dp))
-        Image(
-            modifier = Modifier.size(80.dp),
-            painter = painterResource(id = R.drawable.larai_plain),
-            contentDescription = null)
-        Spacer(modifier = Modifier.height(10.dp))
+        Column(
+            modifier = Modifier
+                .weight(1f),
+            verticalArrangement = Arrangement.Center
+
+        ) {
+            Image(
+                modifier = Modifier.size(80.dp),
+                painter = painterResource(id = R.drawable.larai_plain),
+                contentDescription = null)
+
+        }
+
         LazyRow(
-            contentPadding = PaddingValues(horizontal = 10.dp),
+            modifier = Modifier.fillMaxWidth(),
+            contentPadding = PaddingValues(10.dp),
             horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             item{
-                QuestionCard()
+                QuestionCard(
+                    textBody = stringResource(id = R.string.sample_a),
+                    onQuestionCardClicked = {}
+                )
             }
             item {
-                QuestionCard()
+                QuestionCard(
+                    textBody = stringResource(id = R.string.sample_b),
+                    onQuestionCardClicked = {}
+                )
             }
         }
-        Spacer(modifier = Modifier.height(30.dp))
-        Text(
-            style = TextStyle(
-                textAlign = TextAlign.Center
-            ),
-            text = stringResource(id = R.string.user_safety_text))
-        Spacer(modifier = Modifier.height(100.dp))
     }
 }
 
@@ -291,14 +302,28 @@ fun PromptTextFieldRow(
                 textState = textState){
                 isFocused = it.isFocused
             }
-            IconButton(
-                enabled = enableSndBtn,
-                onClick = { onSendClicked(textState.text){textState.clearText()} }) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Outlined.Send,
-                    contentDescription = null,
-                    tint= MaterialTheme.colorScheme.onBackground)
+
+            AnimatedContent(targetState = enableSndBtn, label = "enable send button") {
+                if(it){
+                    IconButton(
+                        enabled = enableSndBtn,
+                        onClick = { onSendClicked(textState.text){textState.clearText()} }) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Outlined.Send,
+                            contentDescription = null,
+                            tint= MaterialTheme.colorScheme.onBackground)
+                    }
+                }else{
+                    CircularProgressIndicator(
+                        modifier = Modifier.padding(horizontal = 8.dp),
+                        color = Color.White,
+                        strokeCap = StrokeCap.Round,
+                        strokeWidth = ProgressIndicatorDefaults.CircularStrokeWidth / 2
+                    )
+                }
             }
+
+
         }
     }
 
@@ -371,7 +396,7 @@ fun QuestionCard(
 
     Surface(
         modifier = modifier
-            .clip(RoundedCornerShape(6.dp))
+            .clip(RoundedCornerShape(12.dp))
             .clickable(
                 interactionSource = interactionSource,
                 indication = customRipple
@@ -381,9 +406,8 @@ fun QuestionCard(
             modifier = modifier
                 .background(MidGrey, RoundedCornerShape(6.dp))
                 .padding(8.dp)
-                .width(300.dp)
-            ,
-            verticalArrangement = Arrangement.Center
+                .widthIn(max = 250.dp),
+            verticalArrangement = Arrangement.Center,
         ) {
             Spacer(modifier = Modifier.height(8.dp))
             Text(text = textBody, color = WhiteAlpha70)
