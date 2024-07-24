@@ -90,7 +90,6 @@ fun HomeScreen(
     val loadingState by viewmodel.loadingState.collectAsStateWithLifecycle()
     val enableSndBtn by viewmodel.enableSendButton.collectAsStateWithLifecycle()
     val apiRespError by viewmodel.apiRespError.collectAsStateWithLifecycle()
-    val showNetworkErrorSnackbar by viewmodel.showNetworkErrorSnackbar.collectAsStateWithLifecycle()
     val user by viewmodel.user.collectAsStateWithLifecycle()
     val launcher =
         rememberLauncherForActivityResult(contract = ActivityResultContracts.GetContent()) { uri ->
@@ -203,7 +202,6 @@ fun HomeScreen(
 
         }
     ) {paddingValues ->
-        val updatedSnackbar = rememberUpdatedState(newValue = showNetworkErrorSnackbar)
         Box(
             modifier =
             Modifier.padding(

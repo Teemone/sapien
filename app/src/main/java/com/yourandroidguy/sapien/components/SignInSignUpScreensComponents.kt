@@ -100,7 +100,7 @@ fun PasswordComplexityItem(
         Icon(
             modifier = Modifier.size(16.dp),
             imageVector = if (completed) Icons.Filled.CheckCircle else Icons.Filled.Cancel, contentDescription = null,
-            tint = if (completed) MaterialTheme.colorScheme.error else Color.Green)
+            tint = if (completed) Color.Green else MaterialTheme.colorScheme.error)
         Spacer(modifier = Modifier.width(4.dp))
         Text(text = text, style = TextStyle.Default.copy(fontStyle = FontStyle.Italic))
     }
@@ -321,12 +321,16 @@ fun OrDivider() {
 @Composable
 fun ContinueWithGoogleButton(
     modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    isLoading: Boolean = false,
     onClick: () -> Unit = {},
 ) {
     ContinueWith_Button(
         modifier = modifier,
         text = stringResource(R.string.continue_with_google),
         hasIcon = true,
+        enabled = enabled,
+        isLoading = isLoading,
         icon = {
             Image(
                 modifier = Modifier.size(24.dp),

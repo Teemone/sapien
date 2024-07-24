@@ -41,7 +41,6 @@ fun SignupScreen(
     hasLowercase: Boolean,
     atLeast8Chars: Boolean,
     signUpState: SignUpScreenState,
-    continueWithGoogle: () -> Unit = {},
     createAccountWithEmailPw: () -> Unit = {},
     checkPasswordComplexity: (String) -> Unit = {}
 ) {
@@ -108,9 +107,5 @@ fun SignupScreen(
             createAccountWithEmailPw()
         }
         Spacer(modifier = Modifier.height(20.dp))
-        OrDivider()
-        Spacer(modifier = Modifier.height(20.dp))
-        ContinueWithGoogleButton(modifier = Modifier.fillMaxWidth()){continueWithGoogle()}
-        Spacer(modifier = Modifier.height(10.dp))
     }
 }

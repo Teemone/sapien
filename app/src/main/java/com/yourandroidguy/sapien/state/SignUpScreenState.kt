@@ -6,9 +6,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 
 data class SignUpScreenState(
-    private val _email: String,
-    private val _password: String,
-    private val _confPassword: String,
+    private var _email: String,
+    private var _password: String,
+    private var _confPassword: String,
 ): AuthState(_email, _password){
     override var confPassword: MutableState<String> = mutableStateOf(_confPassword)
 }
