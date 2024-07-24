@@ -37,8 +37,10 @@ import com.yourandroidguy.sapien.ui.theme.DarkGrey
 
 @Composable
 fun SignInScreen(
-    enabled: Boolean,
-    isLoading: Boolean,
+    emailBtnEnabled: Boolean,
+    emailBtnIsLoading: Boolean,
+    googleBtnEnabled: Boolean,
+    googleBtnIsLoading: Boolean,
     signInState: SignInScreenState,
     navigateToSignUp: () -> Unit = {},
     continueWithEmail: () -> Unit = {},
@@ -92,12 +94,15 @@ fun SignInScreen(
         Spacer(modifier = Modifier.height(10.dp))
         ContinueWithEmailButton(
             modifier = Modifier.fillMaxWidth(),
-            isLoading = isLoading,
-            enabled = enabled){continueWithEmail()}
+            isLoading = emailBtnIsLoading,
+            enabled = emailBtnEnabled){continueWithEmail()}
         Spacer(modifier = Modifier.height(20.dp))
         OrDivider()
         Spacer(modifier = Modifier.height(20.dp))
-        ContinueWithGoogleButton(modifier = Modifier.fillMaxWidth()){continueWithGoogle()}
+        ContinueWithGoogleButton(
+            enabled = googleBtnEnabled,
+            isLoading = googleBtnIsLoading,
+            modifier = Modifier.fillMaxWidth()){continueWithGoogle()}
         Spacer(modifier = Modifier.height(50.dp))
     }
 }
