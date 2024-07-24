@@ -42,10 +42,12 @@ class SapienViewModel: ViewModel() {
     private var _loadingState = MutableStateFlow(LoadingState.CANCELLED)
     val loadingState = _loadingState.asStateFlow()
 
-    private var _enableButton = MutableStateFlow(true)
-    val enableButton = _enableButton.asStateFlow()
+    private var _enableSendButton = MutableStateFlow(true)
+    val enableSendButton = _enableSendButton.asStateFlow()
 
-    private var count = 0
+    private var _apiRespError = MutableStateFlow(false)
+    val apiRespError = _apiRespError.asStateFlow()
+
     /**
      * Backing property to store a reference to the current [Chat]
      */
@@ -68,7 +70,7 @@ class SapienViewModel: ViewModel() {
     fun sendRequestToAi(message: ChatMessage){
         viewModelScope.launch {
             try {
-                _enableButton.update { false }
+                _enableSendButton.update { false }
 
                 val resp = generativeModel.generateContent(message.message?: "")
 
@@ -76,28 +78,24 @@ class SapienViewModel: ViewModel() {
 
                 if (resp.text != null){
                     _chatMessageList.update { msgList ->
-                        val tmp = msgList.toMutableList()
                         val cm = ChatMessage(
                             id = message.id?.plus(1),
                             message = resp.text,
                             sender = Sender.BOT
                         )
-                        tmp.add(cm)
                         insertMessage(cm, currentChat.value?.id!!)
-                        Log.i("Bot Response Id", cm.id.toString())
-                        tmp.toList()
+                        msgList + cm
                     }
-                    _enableButton.update { true }
+                    _enableSendButton.update { true }
                 }else{
-                    _enableButton.update { true }
+                    _enableSendButton.update { true }
                 }
             }catch (e: Exception){
-                _enableButton.update { true }
+                _enableSendButton.update { true }
+                _apiRespError.update { true }
                 e.printStackTrace()}
 
 
-//            Log.i("Chat Message List", _chatMessageList.value.toString())
-//            Log.i("VM apiResp Loading state", enableButton.value.toString())
         }
     }
 
@@ -160,12 +158,10 @@ class SapienViewModel: ViewModel() {
                             override fun onDataChange(snapshot: DataSnapshot) {
                                 val tmpList = mutableListOf<ChatMessage>()
                                 try {
-                                    count++
                                     for (snap in snapshot.children){
                                         snap.getValue<ChatMessage>()?.let { tmpList.add(it) }
                                         Log.i(snap.key, (snap.getValue<ChatMessage>()).toString())
                                     }
-                                    Log.i("COUNT", count.toString())
                                 }catch (e: Exception){e.printStackTrace()}
                                 finally {
                                     if (tmpList.isNotEmpty())
@@ -236,12 +232,16 @@ class SapienViewModel: ViewModel() {
     fun updateCurrentChat(chat: Chat?){_currentChat.update { chat }}
 
     fun updateLoadingState(loadingState: LoadingState){_loadingState.update { loadingState }}
-//    fun updateApiResponseLoadingState(loadingState: LoadingState){_apiResponseLoadingState.update { loadingState }}
+
+    fun updateApiRespError(isError: Boolean){_apiRespError.update { isError }}
 
     fun updateUser(user: FirebaseUser?) {
         _user.update { user }
         Log.i("USER", user?.uid.toString())
     }
+
+
+
 
     fun addChatToChatsList(chat: Chat) {
         _chats.update {
