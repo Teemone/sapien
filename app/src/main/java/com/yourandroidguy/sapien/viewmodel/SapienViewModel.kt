@@ -52,10 +52,6 @@ class SapienViewModel: ViewModel() {
      * Backing property to store a reference to the current [Chat]
      */
     private val _currentChat = MutableStateFlow<Chat?>(null)
-
-    /**
-     * Public reference to the current [Chat]
-     */
     val currentChat = _currentChat.asStateFlow()
 
     init {
@@ -77,15 +73,17 @@ class SapienViewModel: ViewModel() {
                 delay(3000)
 
                 if (resp.text != null){
-                    _chatMessageList.update { msgList ->
-                        val cm = ChatMessage(
-                            id = message.id?.plus(1),
-                            message = resp.text,
-                            sender = Sender.BOT
-                        )
-                        insertMessage(cm, currentChat.value?.id!!)
-                        msgList + cm
-                    }
+                    val cm = ChatMessage(
+                        id = message.id?.plus(1),
+                        message = resp.text,
+                        sender = Sender.BOT
+                    )
+                    insertMessage(cm, currentChat.value?.id!!)
+//                    _chatMessageList.update { msgList ->
+//
+//
+//                        msgList + cm
+//                    }
                     _enableSendButton.update { true }
                 }else{
                     _enableSendButton.update { true }
@@ -159,14 +157,14 @@ class SapienViewModel: ViewModel() {
                                 val tmpList = mutableListOf<ChatMessage>()
                                 try {
                                     for (snap in snapshot.children){
-                                        snap.getValue<ChatMessage>()?.let { tmpList.add(it) }
-                                        Log.i(snap.key, (snap.getValue<ChatMessage>()).toString())
+                                        if (snap.getValue<ChatMessage>() != null)
+                                            tmpList.add(snap.getValue<ChatMessage>()!!)
                                     }
+                                    _chatMessageList.value = tmpList.toList()
                                 }catch (e: Exception){e.printStackTrace()}
                                 finally {
-                                    if (tmpList.isNotEmpty())
+                                    if (_chatMessageList.value.isNotEmpty())
                                         updateLoadingState(LoadingState.COMPLETED)
-                                    _chatMessageList.value = tmpList.toList()
                                     Log.i("Chat Message List Aft Retrieval from db", _chatMessageList.value.toString())
                                 }
                             }
@@ -225,6 +223,7 @@ class SapienViewModel: ViewModel() {
                     .child("m${message.id.toString()}")
                     .setValue(message)
             }
+            fetchMessagesByChatId(chatId)
             Log.i("Insert Msg to Db", "Mssg: $message === Id: $chatId")
         }
     }
@@ -235,15 +234,12 @@ class SapienViewModel: ViewModel() {
 
     fun updateApiRespError(isError: Boolean){_apiRespError.update { isError }}
 
-    fun updateUser(user: FirebaseUser?) {
-        _user.update { user }
-        Log.i("USER", user?.uid.toString())
-    }
+    fun updateUser(user: FirebaseUser?) { _user.update { user } }
 
 
 
 
-    fun addChatToChatsList(chat: Chat) {
+    private fun addChatToChatsList(chat: Chat) {
         _chats.update {
             val newList = mutableListOf<Chat>()
             if (it.isNotEmpty())

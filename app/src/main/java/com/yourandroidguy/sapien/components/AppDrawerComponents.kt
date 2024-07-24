@@ -25,6 +25,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
@@ -52,6 +53,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -236,85 +239,92 @@ fun DrawerContent(
             .fillMaxSize()
             .padding(horizontal = 16.dp)
     ) {
-        Text(
-            style = MaterialTheme.typography.displaySmall,
-            text = stringResource(id = R.string.app_name))
-        Spacer(modifier = Modifier.height(50.dp))
-        Button(
-            modifier = Modifier
-                .fillMaxWidth(),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color.White,
-                contentColor = Color.Black
-            ),
-            onClick = onNewChatClicked) {
-            Icon(imageVector = Icons.Default.Add,
-                contentDescription = null)
-            Text(text = stringResource(R.string.new_chat))
-        }
-        Spacer(modifier = Modifier.height(24.dp))
-        Row(
-            modifier = Modifier
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+        Column(
+            modifier = Modifier.weight(1f)
         ) {
             Text(
-                modifier = Modifier.weight(1f),
-                text = stringResource(R.string.recent_chats).uppercase(),
-                color = MaterialTheme.colorScheme.onSurface,
-                style = LocalTextStyle.current.copy(),
-                overflow = TextOverflow.Ellipsis,
-                maxLines = 1 )
-            Spacer(modifier = Modifier.width(4.dp))
-            TextButton(onClick = clearAll) {
+                modifier = Modifier.padding(vertical = 24.dp),
+                style = MaterialTheme.typography.titleLarge.copy(fontSize = TextUnit(30f, TextUnitType.Sp)),
+                text = stringResource(id = R.string.app_name))
+            HorizontalDivider()
+            Button(
+                modifier = Modifier
+                    .padding(vertical = 8.dp)
+                    .fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.White,
+                    contentColor = Color.Black
+                ),
+                onClick = onNewChatClicked) {
+                Icon(imageVector = Icons.Default.Add,
+                    contentDescription = null)
+                Text(text = stringResource(R.string.new_chat))
+            }
+            HorizontalDivider()
+            Spacer(modifier = Modifier.height(8.dp))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
                 Text(
-                    text = stringResource(R.string.clear_all),
-                    color = Color.White
-                )
-            }
-        }
-
-        AnimatedContent(targetState = chatList.isEmpty(), label = "show content") { isEmpty->
-            var showIndicator by rememberSaveable {
-                mutableStateOf(true)
-            }
-            if (isEmpty){
-                LaunchedEffect(key1 = Unit) {
-                    delay(5000)
-                    showIndicator = false
+                    modifier = Modifier.weight(1f),
+                    text = stringResource(R.string.recent_chats).uppercase(),
+                    color = MaterialTheme.colorScheme.onSurface,
+                    style = LocalTextStyle.current.copy(),
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 1 )
+                Spacer(modifier = Modifier.width(4.dp))
+                TextButton(onClick = clearAll) {
+                    Text(
+                        text = stringResource(R.string.clear_all),
+                        color = Color.White
+                    )
                 }
+            }
 
-                AnimatedVisibility(visible = showIndicator) {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center)
-                    {
-                        CircularProgressIndicator(
-                            color = Color.White
-                        )
+            AnimatedContent(targetState = chatList.isEmpty(), label = "show content") { isEmpty->
+                var showIndicator by rememberSaveable {
+                    mutableStateOf(true)
+                }
+                if (isEmpty){
+                    LaunchedEffect(key1 = Unit) {
+                        delay(5000)
+                        showIndicator = false
                     }
-                }
 
-            }
-            else {
-                LazyColumn(
-                    contentPadding = PaddingValues(vertical = 4.dp),
-                ) {
-                    items(chatList){
-                        RecentSearchItem(chat = it){ chatItem ->
-                            onRecentSearchItemClicked(chatItem)
+                    AnimatedVisibility(visible = showIndicator) {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center)
+                        {
+                            CircularProgressIndicator(
+                                color = Color.White
+                            )
+                        }
+                    }
+
+                }
+                else {
+                    LazyColumn(
+                        contentPadding = PaddingValues(vertical = 4.dp),
+                    ) {
+                        items(chatList){
+                            RecentSearchItem(chat = it){ chatItem ->
+                                onRecentSearchItemClicked(chatItem)
+                            }
                         }
                     }
                 }
             }
+
         }
 
         Column(
             modifier = Modifier
-                .weight(1f)
-                .fillMaxSize(),
-            verticalArrangement = Arrangement.Bottom
+                .padding(vertical = 16.dp)
+                .fillMaxWidth()
         ){
             if (user?.displayName != null && user.photoUrl != null){
                 Row(

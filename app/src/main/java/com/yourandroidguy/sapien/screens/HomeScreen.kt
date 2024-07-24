@@ -133,7 +133,7 @@ fun HomeScreen(
                                 val chat = Chat(
                                     id = chatListNextIndex,
                                     title = text)
-                                viewmodel.addChatToChatsList(chat)
+//                                viewmodel.addChatToChatsList(chat)
                                 viewmodel.updateCurrentChat(chat)
                                 viewmodel.addChatToDb(chat)
                             }
