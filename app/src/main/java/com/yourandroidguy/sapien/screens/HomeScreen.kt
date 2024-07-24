@@ -1,7 +1,11 @@
 package com.yourandroidguy.sapien.screens
 
+import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.net.Uri
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedContent
@@ -27,13 +31,16 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SmallFloatingActionButton
+import androidx.compose.material3.Snackbar
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
@@ -42,11 +49,13 @@ import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.yourandroidguy.sapien.R
 import com.yourandroidguy.sapien.components.AppTopBar
 import com.yourandroidguy.sapien.components.ChatContent
@@ -60,6 +69,7 @@ import com.yourandroidguy.sapien.state.PromptTextState
 import com.yourandroidguy.sapien.ui.theme.BlackAlpha85
 import com.yourandroidguy.sapien.viewmodel.SapienViewModel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @Composable
 fun HomeScreen(
@@ -77,13 +87,16 @@ fun HomeScreen(
     var imageUrl by remember {
         mutableStateOf<Uri?>(null)
     }
-    val loadingState by viewmodel.loadingState.collectAsState()
-    val enableSndBtn by viewmodel.enableButton.collectAsState()
-    val user by viewmodel.user.collectAsState()
+    val loadingState by viewmodel.loadingState.collectAsStateWithLifecycle()
+    val enableSndBtn by viewmodel.enableSendButton.collectAsStateWithLifecycle()
+    val apiRespError by viewmodel.apiRespError.collectAsStateWithLifecycle()
+    val showNetworkErrorSnackbar by viewmodel.showNetworkErrorSnackbar.collectAsStateWithLifecycle()
+    val user by viewmodel.user.collectAsStateWithLifecycle()
     val launcher =
         rememberLauncherForActivityResult(contract = ActivityResultContracts.GetContent()) { uri ->
             imageUrl = uri
         }
+    val context = LocalContext.current
 
 
     Scaffold(
@@ -109,11 +122,11 @@ fun HomeScreen(
                 onImportImageClicked = {launcher.launch("image/*")},
                 onSendClicked = {
                         text, clearText ->
+                    val chatListNextIndex = viewmodel.chatsList.value.lastIndex + 1
                     val validText = text.isNotBlank() && text.isNotEmpty()
-                    when{
 
-                        validText -> {
-                            val chatListNextIndex = viewmodel.chatsList.value.lastIndex + 1
+                    when{
+                        validText && context.isNetworkAvailable() -> {
 
                             // populate chatList with new chat
                             // iff chatMessageList is empty
@@ -128,8 +141,9 @@ fun HomeScreen(
 
                             // populate chatMessageList (holds all messages for a particular chat)
                             // when a new message is sent
+
                             val cm = ChatMessage(
-                                id = chatMessageList.last().id?.plus(1),
+                                id = if(chatMessageList.isEmpty()) 0 else chatMessageList.last().id?.plus(1),
                                 message = text,
                                 sender = Sender.USER
                             )
@@ -144,7 +158,15 @@ fun HomeScreen(
                             // forward a request to the chat-bot service
                             sendRequestToAiService(cm)
 
-                            Log.i("Button enabled state", enableSndBtn.toString())
+                            clearText()
+
+                        }
+                        validText && !context.isNetworkAvailable() -> {
+                            Toast.makeText(
+                                context,
+                                "No internet connection. Please check your network settings.",
+                                Toast.LENGTH_LONG
+                            ).show()
                         }
                     }
 
@@ -156,7 +178,6 @@ fun HomeScreen(
                         }
                     }
 
-                    clearText()
                 }
             )
         },
@@ -182,6 +203,7 @@ fun HomeScreen(
 
         }
     ) {paddingValues ->
+        val updatedSnackbar = rememberUpdatedState(newValue = showNetworkErrorSnackbar)
         Box(
             modifier =
             Modifier.padding(
@@ -236,7 +258,22 @@ fun HomeScreen(
                 }
             }
 
+            if (apiRespError){
+                Toast.makeText(
+                    LocalContext.current,
+                    "Unexpected error occurred. Please check your internet connection",
+                    Toast.LENGTH_LONG
+                ).show()
+                viewmodel.updateApiRespError(false)
+            }
+
         }
 
     }
+}
+
+fun Context.isNetworkAvailable(): Boolean {
+    val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+    val capabilities = connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
+    return capabilities?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) ?: false
 }
