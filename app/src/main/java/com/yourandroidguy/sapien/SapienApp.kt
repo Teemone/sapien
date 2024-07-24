@@ -32,6 +32,7 @@ import com.google.firebase.auth.GoogleAuthProvider
 import com.yourandroidguy.sapien.components.AppDrawer
 import com.yourandroidguy.sapien.screens.SignInScreen
 import com.yourandroidguy.sapien.screens.SignupScreen
+import com.yourandroidguy.sapien.state.AuthState
 import com.yourandroidguy.sapien.state.SignInScreenState
 import com.yourandroidguy.sapien.state.SignUpScreenState
 import com.yourandroidguy.sapien.state.rememberSignInState
@@ -92,22 +93,30 @@ fun App(
 
             composable(route = Routes.SIGN_IN){
 
-                var isLoading by rememberSaveable {
+                var emailBtnIsLoading by rememberSaveable {
                     mutableStateOf(false)
                 }
                 val textFieldIsNotEmpty by checkSignInTextFieldsNotEmpty(signInState = signInState).collectAsState()
-                var enableBtn by rememberSaveable(textFieldIsNotEmpty) {
-                    mutableStateOf(textFieldIsNotEmpty && !isLoading)
+                var emailBtnEnabled by rememberSaveable(textFieldIsNotEmpty) {
+                    mutableStateOf(textFieldIsNotEmpty && !emailBtnIsLoading)
+                }
+                var googleBtnIsLoading by rememberSaveable {
+                    mutableStateOf(false)
+                }
+                var googleBtnEnabled by rememberSaveable(emailBtnIsLoading) {
+                    mutableStateOf(!emailBtnIsLoading)
                 }
 
                 SignInScreen(
                     signInState = signInState,
-                    isLoading = isLoading,
-                    enabled = enableBtn,
+                    emailBtnIsLoading = emailBtnIsLoading,
+                    emailBtnEnabled = emailBtnEnabled,
+                    googleBtnEnabled = googleBtnEnabled,
+                    googleBtnIsLoading = googleBtnIsLoading,
                     continueWithEmail = {
                         if (isValidEmail(signInState.email)){
-                            isLoading = true
-                            enableBtn = false
+                            emailBtnIsLoading = true
+                            emailBtnEnabled = false
                             auth.signInWithEmailAndPassword(
                                 signInState.email,
                                 signInState.password)
@@ -123,8 +132,9 @@ fun App(
                                                 navController.popBackStack()
                                                 navController.navigate("home")
                                                 delay(500)
-                                                isLoading = false
-                                                enableBtn = true
+                                                emailBtnIsLoading = false
+                                                emailBtnEnabled = true
+                                                clearInputFields(signInState)
 
                                             }
                                         }else{
@@ -143,8 +153,8 @@ fun App(
                                     }
                                 }
                                 .addOnFailureListener { e ->
-                                    isLoading = false
-                                    enableBtn = true
+                                    emailBtnIsLoading = false
+                                    emailBtnEnabled = true
                                     when(e){
                                         is FirebaseNetworkException -> {
                                             toast(context.getString(R.string.check_your_internet_connection))
@@ -171,6 +181,9 @@ fun App(
 
                     },
                     continueWithGoogle = {
+                        googleBtnEnabled = false
+                        googleBtnIsLoading = true
+                        emailBtnEnabled = false
 
                         val googleIdOption = GetGoogleIdOption.Builder()
                             .setFilterByAuthorizedAccounts(false)
@@ -198,13 +211,19 @@ fun App(
                                             viewModel.updateUser(auth.currentUser)
                                             navController.popBackStack()
                                             navController.navigate(Routes.HOME)
+                                            googleBtnEnabled = true
+                                            googleBtnIsLoading = false
                                         }
                                     }
                                     .addOnFailureListener{e ->
+                                        googleBtnEnabled = true
+                                        googleBtnIsLoading = false
                                         toast(e.message.toString())
                                     }
                             }catch (e: Exception){
                                 toast(e.message.toString())
+                                googleBtnEnabled = true
+                                googleBtnIsLoading = false
                                 e.printStackTrace()
                             }
                         }
@@ -275,6 +294,7 @@ fun App(
                                                     delay(500)
                                                     isLoading = false
                                                     enableBtn = true
+                                                    clearInputFields(signupState)
                                                 }
 
                                             }else{
@@ -296,9 +316,6 @@ fun App(
 
                         }else
                             toast(context.getString(R.string.invalid_email))
-
-                    },
-                    continueWithGoogle = {
 
                     }
                 )
@@ -341,6 +358,14 @@ fun checkSignUpTextFieldsNotEmpty(signUpState: SignUpScreenState): StateFlow<Boo
         }
     }
     return tmp.asStateFlow()
+}
+
+private fun clearInputFields(state: AuthState){
+    state.apply {
+        email = ""
+        password = ""
+        confPassword.value = ""
+    }
 }
 
 object Routes{
