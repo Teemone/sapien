@@ -31,16 +31,11 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SmallFloatingActionButton
-import androidx.compose.material3.Snackbar
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
@@ -68,8 +63,8 @@ import com.yourandroidguy.sapien.model.ChatMessage
 import com.yourandroidguy.sapien.state.PromptTextState
 import com.yourandroidguy.sapien.ui.theme.BlackAlpha85
 import com.yourandroidguy.sapien.viewmodel.SapienViewModel
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 @Composable
 fun HomeScreen(
@@ -96,6 +91,9 @@ fun HomeScreen(
             imageUrl = uri
         }
     val context = LocalContext.current
+    val currentChat = viewmodel.currentChat
+    val chatListNextIndex = viewmodel.chatsList.collectAsStateWithLifecycle().value.lastIndex + 1
+
 
 
     Scaffold(
@@ -121,7 +119,6 @@ fun HomeScreen(
                 onImportImageClicked = {launcher.launch("image/*")},
                 onSendClicked = {
                         text, clearText ->
-                    val chatListNextIndex = viewmodel.chatsList.value.lastIndex + 1
                     val validText = text.isNotBlank() && text.isNotEmpty()
 
                     when{
@@ -130,12 +127,7 @@ fun HomeScreen(
                             // populate chatList with new chat
                             // iff chatMessageList is empty
                             if (chatMessageList.isEmpty()){
-                                val chat = Chat(
-                                    id = chatListNextIndex,
-                                    title = text)
-//                                viewmodel.addChatToChatsList(chat)
-                                viewmodel.updateCurrentChat(chat)
-                                viewmodel.addChatToDb(chat)
+                                createNewChat(chatListNextIndex, text, viewmodel)
                             }
 
                             // populate chatMessageList (holds all messages for a particular chat)
@@ -149,7 +141,7 @@ fun HomeScreen(
                             chatMessageList.add(cm)
                             Log.i("User Prompt Id", cm.id.toString())
 
-                            val currentChatId = viewmodel.currentChat.value?.id!!
+                            val currentChatId = currentChat.value?.id!!
                             viewmodel.insertMessage(
                                 cm,
                                 currentChatId)
@@ -221,7 +213,46 @@ fun HomeScreen(
             AnimatedContent(targetState = loadingState, label = "loading state") { ls ->
                 when{
                     chatMessageList.isEmpty() && ls == SapienViewModel.LoadingState.CANCELLED -> {
-                        WelcomeContent()
+                        WelcomeContent(
+                            onQuestionCard1Clicked = { text ->
+                                if (context.isNetworkAvailable()){
+                                    createNewChat(chatListNextIndex, text, viewmodel)
+                                    handleNewMessage(
+                                        text,
+                                        chatMessageList,
+                                        viewmodel,
+                                        currentChat,
+                                        sendRequestToAiService
+                                    )
+                                }
+                                else{
+                                    Toast.makeText(
+                                        context,
+                                        "No internet connection. Please check your network settings.",
+                                        Toast.LENGTH_LONG
+                                    ).show()
+                                }
+                            },
+                            onQuestionCard2Clicked = { text ->
+                                if (context.isNetworkAvailable()){
+                                    createNewChat(chatListNextIndex, text, viewmodel)
+                                    handleNewMessage(
+                                        text,
+                                        chatMessageList,
+                                        viewmodel,
+                                        currentChat,
+                                        sendRequestToAiService
+                                    )
+                                }
+                                else{
+                                    Toast.makeText(
+                                        context,
+                                        "No internet connection. Please check your network settings.",
+                                        Toast.LENGTH_LONG
+                                    ).show()
+                                }
+                            }
+                        )
                     }
                     chatMessageList.isEmpty() && ls == SapienViewModel.LoadingState.LOADING -> {
                         Box(modifier = Modifier.fillMaxSize(),
@@ -270,7 +301,36 @@ fun HomeScreen(
     }
 }
 
-fun Context.isNetworkAvailable(): Boolean {
+private fun handleNewMessage(
+    text: String,
+    chatMessageList: SnapshotStateList<ChatMessage>,
+    viewmodel: SapienViewModel,
+    currentChat: StateFlow<Chat?>,
+    sendRequestToAiService: (ChatMessage) -> Unit
+) {
+    val cm = ChatMessage(
+        id = 0,
+        message = text,
+        sender = Sender.USER
+    )
+    chatMessageList.add(cm)
+    viewmodel.insertMessage(cm, currentChat.value?.id!!)
+    sendRequestToAiService(cm)
+}
+
+private fun createNewChat(
+    chatId: Int,
+    title: String,
+    viewmodel: SapienViewModel,
+){
+    val chat = Chat(
+        id = chatId,
+        title = title)
+    viewmodel.updateCurrentChat(chat)
+    viewmodel.addChatToDb(chat)
+}
+
+private fun Context.isNetworkAvailable(): Boolean {
     val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
     val capabilities = connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
     return capabilities?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) ?: false

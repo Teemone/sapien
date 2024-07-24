@@ -132,7 +132,9 @@ fun ChatContent(
 
 @Composable
 fun WelcomeContent(
-    modifier: Modifier=Modifier
+    modifier: Modifier=Modifier,
+    onQuestionCard1Clicked: (String) -> Unit,
+    onQuestionCard2Clicked: (String) -> Unit
 ) {
     Column(
         modifier = modifier
@@ -163,13 +165,13 @@ fun WelcomeContent(
             item{
                 QuestionCard(
                     textBody = stringResource(id = R.string.sample_a),
-                    onQuestionCardClicked = {}
+                    onQuestionCardClicked = {onQuestionCard1Clicked(it)}
                 )
             }
             item {
                 QuestionCard(
                     textBody = stringResource(id = R.string.sample_b),
-                    onQuestionCardClicked = {}
+                    onQuestionCardClicked = { onQuestionCard2Clicked(it) }
                 )
             }
         }
@@ -385,7 +387,7 @@ fun PromptTextField(
 fun QuestionCard(
     modifier: Modifier = Modifier,
     textBody: String = "loremIpsum",
-    onQuestionCardClicked: () -> Unit = {}
+    onQuestionCardClicked: (String) -> Unit = {}
 ) {
     val interactionSource = remember{
         MutableInteractionSource()
@@ -400,7 +402,7 @@ fun QuestionCard(
             .clickable(
                 interactionSource = interactionSource,
                 indication = customRipple
-            ) { onQuestionCardClicked() }
+            ) { onQuestionCardClicked(textBody) }
     ) {
         Column(
             modifier = modifier

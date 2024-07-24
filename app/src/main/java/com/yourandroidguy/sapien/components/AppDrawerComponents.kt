@@ -285,24 +285,15 @@ fun DrawerContent(
             }
 
             AnimatedContent(targetState = chatList.isEmpty(), label = "show content") { isEmpty->
-                var showIndicator by rememberSaveable {
-                    mutableStateOf(true)
-                }
                 if (isEmpty){
-                    LaunchedEffect(key1 = Unit) {
-                        delay(5000)
-                        showIndicator = false
-                    }
 
-                    AnimatedVisibility(visible = showIndicator) {
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center)
-                        {
-                            CircularProgressIndicator(
-                                color = Color.White
-                            )
-                        }
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center)
+                    {
+                        CircularProgressIndicator(
+                            color = Color.White
+                        )
                     }
 
                 }
