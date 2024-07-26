@@ -1,5 +1,8 @@
 package com.yourandroidguy.sapien.viewmodel
 
+import android.content.Context
+import android.graphics.BitmapFactory
+import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -10,10 +13,12 @@ import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.getValue
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.vertexai.type.content
 import com.google.firebase.vertexai.vertexAI
 import com.yourandroidguy.sapien.components.Sender
 import com.yourandroidguy.sapien.model.Chat
 import com.yourandroidguy.sapien.model.ChatMessage
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -63,27 +68,44 @@ class SapienViewModel: ViewModel() {
     }
 
 
-    fun sendRequestToAi(message: ChatMessage){
-        viewModelScope.launch {
+    fun sendRequestToAi(context: Context, chatMessage: ChatMessage){
+        val contentResolver = context.contentResolver
+        viewModelScope.launch(Dispatchers.IO) {
+            val bitmap = try{
+                contentResolver.openInputStream(Uri.parse(chatMessage.imageUrl)).use {
+                    BitmapFactory.decodeStream(it)
+                }
+            }catch (e: Exception){
+                e.printStackTrace()
+                null
+            }
+            val message = chatMessage.message!!
             try {
                 _enableSendButton.update { false }
 
-                val resp = generativeModel.generateContent(message.message?: "")
+                val resp =
+                    if(bitmap == null){
+                    generativeModel.generateContent(message) }
+                    else{
+                        generativeModel.generateContent(
+                            content {
+                                image(bitmap)
+                                text(message)
+                            }
+                        )
+                    }
+
 
                 delay(3000)
 
                 if (resp.text != null){
                     val cm = ChatMessage(
-                        id = message.id?.plus(1),
+                        id = chatMessage.id?.plus(1),
                         message = resp.text,
                         sender = Sender.BOT
                     )
                     insertMessage(cm, currentChat.value?.id!!)
-//                    _chatMessageList.update { msgList ->
-//
-//
-//                        msgList + cm
-//                    }
+
                     _enableSendButton.update { true }
                 }else{
                     _enableSendButton.update { true }
@@ -120,7 +142,7 @@ class SapienViewModel: ViewModel() {
             }
 
         }
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             delay(2000)
             user.value?.uid?.let { uid ->
                 database
@@ -141,7 +163,7 @@ class SapienViewModel: ViewModel() {
      */
 
     fun fetchMessagesByChatId(chatId: Int){
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             delay(2000)
 
             user.value?.uid?.let { uid ->
@@ -181,7 +203,7 @@ class SapienViewModel: ViewModel() {
     }
 
     fun clearAllChats(){
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             database.apply {
                 user.value?.uid?.let { uid ->
                     child("users")
