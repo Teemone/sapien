@@ -14,6 +14,7 @@ import kotlinx.parcelize.Parcelize
 data class ChatMessage(
     val id: Int? = null,
     val message: String? = null,
+    val imageUrl: String? = null,
     val sender: Sender? = null,
     val timestamp: Long? = null
 ): Parcelable

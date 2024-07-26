@@ -85,6 +85,7 @@ fun AppDrawer(
             keyboardController?.hide()
         true
     }
+    val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val chatMessageList = rememberChatMessageListState(
         viewModel.chatMessageList.collectAsStateWithLifecycle().value.toMutableStateList()
@@ -217,7 +218,9 @@ fun AppDrawer(
             },
             onProfileClicked = {userInfoDialog = true},
             sendRequestToAiService = {message ->
-                viewModel.sendRequestToAi(message)
+                viewModel.sendRequestToAi(
+                    context = context,
+                    chatMessage = message)
             }
         )
     }

@@ -38,5 +38,6 @@
     <string name="generating_response">Generating response…</string>
     <string name="sample_a">Describe a piece of jewelry that represents a historical era</string>
     <string name="sample_b">Generate a recipe based on five random ingredients</string>
+    <string name="say_something">Say something…</string>
     <string name="web_client_id">581011382589-qqrjhqq0su97t0qkq5s2852ja9g3qa4c.apps.googleusercontent.com</string>
 </resources>

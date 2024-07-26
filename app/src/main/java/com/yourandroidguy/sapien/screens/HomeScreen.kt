@@ -136,9 +136,11 @@ fun HomeScreen(
                             val cm = ChatMessage(
                                 id = if(chatMessageList.isEmpty()) 0 else chatMessageList.last().id?.plus(1),
                                 message = text,
+                                imageUrl = imageUrl.toString(),
                                 sender = Sender.USER
                             )
                             chatMessageList.add(cm)
+                            imageUrl = null
                             Log.i("User Prompt Id", cm.id.toString())
 
                             val currentChatId = currentChat.value?.id!!
