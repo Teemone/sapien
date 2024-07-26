@@ -102,28 +102,38 @@ fun ChatContent(
         items(chatMessages){ message ->
             when (message.sender) {
                 Sender.USER -> {
-                    Box(
-                        modifier = Modifier.fillMaxWidth(),
-                        contentAlignment = Alignment.CenterEnd
-                    ){
-                        message.message?.let {
+                    message.message?.let {
+
+                        val uri = try {
+                            Uri.parse(message.imageUrl)
+                        }catch (e: NullPointerException){
+                            null
+                        }
+
+                        Box(
+                            modifier = Modifier.fillMaxWidth(),
+                            contentAlignment = Alignment.CenterEnd
+                        ){
                             RequestBubble(
-                                text = it
+                                text = it,
+                                image = uri
                             )
                         }
                     }
                 }
                 else -> {
-                    Box(
-                        modifier = Modifier.fillMaxWidth(),
-                        contentAlignment = Alignment.CenterStart
-                    ){
-                        message.message?.let {
+                    message.message?.let {
+                        Box(
+                            modifier = Modifier.fillMaxWidth(),
+                            contentAlignment = Alignment.CenterStart
+                        ){
                             ResponseBubble(
                                 text = it
                             )
+
                         }
                     }
+
                 }
             }
         }
@@ -366,7 +376,7 @@ fun PromptTextField(
                 interactionSource = interactionSource,
                 contentPadding = PaddingValues(12.dp),
                 placeholder = {
-                    Text(text = stringResource(id = R.string.im_looking_for), color = Color.Black)
+                    Text(text = stringResource(id = R.string.say_something), color = Color.Black)
                 },
                 colors = TextFieldDefaults.colors(
                     unfocusedContainerColor = Color.White,
